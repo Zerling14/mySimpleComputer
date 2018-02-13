@@ -10,7 +10,7 @@ int sc_memoryInit()
 	for (int i = 0; i < MEMORY_SIZE; i++) {
 		memory[i] = 0;
 	}
-	
+
 	return 0;
 }
 
@@ -21,24 +21,31 @@ int sc_memorySet(int address, int value)
 		return 1;
 	}
 	memory[address] = value;
-	
+
 	return 0;
 }
 
 int sc_memoryGet(int address, int *value)
 {
-	if (address < 0 || address > 99) {
+	if (address < 0 || address > 99 || !value) {
 		return 1;
 	}
-	
+
 	*value = memory[address];
-	
+
 	return 0;
-} 
+}
 
 int sc_memorySave(char *filename)
 {
+	if (!filename) {
+		return 1;
+	}
+
 	FILE *ptrFile = fopen(filename, "wb");
+	if (!ptrFile) {
+		return 1;
+	}
 
 	fwrite(memory, CELL_SIZE, MEMORY_SIZE, ptrFile);
 	fclose(ptrFile);
@@ -47,10 +54,16 @@ int sc_memorySave(char *filename)
 
 int sc_memoryLoad(char* filename)
 {
+	if (!filename) {
+		return 1;
+	}
+
 	FILE *ptrFile = fopen(filename, "rb");
-	
+	if (!ptrFile) {
+		return 1;
+	}
 	fread(memory, CELL_SIZE, MEMORY_SIZE, ptrFile);
-	
+
 	fclose(ptrFile);
 
 	return 0;
@@ -81,7 +94,7 @@ int sc_regSet(int num_register, int value)
 
 int sc_regGet(int num_register, int *value)
 {
-	if (num_register < 0 || num_register > 4) {
+	if (num_register < 0 || num_register > 4 || !value) {
 		return 1;
 	}
 	if (flag_reg & 1 << num_register) {
@@ -89,7 +102,7 @@ int sc_regGet(int num_register, int *value)
 	} else {
 		*value = 0;
 	}
-	
+
 	return 0;
 }
 
@@ -124,6 +137,9 @@ int sc_commandEncode(int command, int operand, int *value)
 }
 int sc_commandDecode(int value, int *command, int *operand)
 {
+	if (!command || !operand) {
+		return 1;
+	}
 	if (value & 0x4000) {
 		sc_regSet(EF, 1);
 		return 1;
