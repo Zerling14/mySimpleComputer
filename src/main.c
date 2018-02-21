@@ -2,8 +2,10 @@
 #include <stdlib.h>
 #include "controldevice.h"
 #include "debug.h"
+#include "myterm.h"
+#include "interface.h"
 
-int main()
+void print_test_lab1()
 {
 	sc_memoryInit();
 	// set in memory multiplication table
@@ -27,7 +29,7 @@ int main()
 	
 	// load table
 	printf("TEST MEMORY LOAD\n");
-	if (sc_memoryLoad("test.bin")) {
+	if (sc_memoryLoad("mul_table.bin")) {
 		printf("\n error memory load \n");
 	}
 	system("clear");
@@ -66,5 +68,38 @@ int main()
 	int operand = 0;
 	sc_commandDecode(val2, &command, &operand);
 	printf("encoded:%X, command:%d operand:%d\n", val2, command, operand);
+}
+
+void print_test_lab2() {
+	/*
+	mt_clrsrc();
+	mt_gotoXY(10, 5);
+	mt_setbgcolor(red);
+	mt_setfgcolor(black);
+	printf("Александр");
+	
+	mt_gotoXY(11, 6);
+	mt_setbgcolor(green);
+	mt_setfgcolor(white);
+	printf("ИВ-621");
+	
+	int rows, cols;
+	mt_get_screensize(&rows, &cols);
+	mt_gotoXY(6, 7);
+	mt_resetcolor();
+	printf("rows: %d cols: %d", rows, cols);	
+	
+	mt_resetcursor();
+	mt_resetcolor();
+	*/
+	
+	mt_clrsrc();
+	mi_printinterface();
+}
+
+int main()
+{
+	//print_test_lab1();
+	print_test_lab2();
 	return 0;
 }

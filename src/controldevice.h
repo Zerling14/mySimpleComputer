@@ -12,6 +12,9 @@
 #define IF 3	// Ignore Tack Impulse Flag
 #define EF 4	// Error Execute Command Flag
 
+int memory[MEMORY_SIZE];
+int flag_reg;
+
 int sc_memoryInit();
 int sc_memorySet(int address, int value);
 int sc_memoryGet(int address, int *value);

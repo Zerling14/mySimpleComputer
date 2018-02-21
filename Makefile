@@ -16,6 +16,8 @@ LIBS = $(LIB_SOURCES:$(SRC_PATH)/%.$(SRC_EXT)=$(LIB_PATH)/%.a)
 
 all: dirs  
 	@$(MAKE) release
+	
+run: all
 	./$(BIN_NAME)
 
 release: $(BUILD_PATH)/main.o $(LIBS)
@@ -25,7 +27,6 @@ $(BUILD_PATH)/main.o : $(SRC_PATH)/main.c
 	gcc $(COMPILE_FLAGS) -c -o $@ $<
 
 $(LIB_PATH)/%.a : $(BUILD_PATH)/%.o
-	echo $@
 	ar rcs $@ $^
 
 $(BUILD_PATH)/%.o: $(SRC_PATH)/%.$(SRC_EXT)

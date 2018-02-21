@@ -2,9 +2,6 @@
 #include <stdlib.h>
 #include "controldevice.h"
 
-int memory[MEMORY_SIZE];
-int flag_reg;
-
 int sc_memoryInit()
 {
 	for (int i = 0; i < MEMORY_SIZE; i++) {
