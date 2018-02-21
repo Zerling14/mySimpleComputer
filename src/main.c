@@ -4,6 +4,7 @@
 #include "debug.h"
 #include "myterm.h"
 #include "interface.h"
+#include <math.h>
 
 void print_test_lab1()
 {
@@ -71,7 +72,6 @@ void print_test_lab1()
 }
 
 void print_test_lab2() {
-	/*
 	mt_clrsrc();
 	mt_gotoXY(10, 5);
 	mt_setbgcolor(red);
@@ -91,15 +91,27 @@ void print_test_lab2() {
 	
 	mt_resetcursor();
 	mt_resetcolor();
-	*/
-	
+}
+
+void print_test2_lab2() {
+	sc_memoryInit();
+	// set in memory multiplication table
+	for (int i = 0; i < 10; i++) { 
+		for (int j = 0; j < 10; j++) {
+			sc_memorySet(i * 10 + j, i * j * pow(-1, i + j));
+		}
+	}
+
 	mt_clrsrc();
 	mi_printinterface();
+	int rows, cols;
+	mt_get_screensize(&rows, &cols);
+	printf("rows: %d cols: %d\n", rows, cols);
 }
 
 int main()
 {
-	//print_test_lab1();
-	print_test_lab2();
+	//print_test_lab2();
+	print_test2_lab2();
 	return 0;
 }

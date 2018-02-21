@@ -1,8 +1,10 @@
-BIN_NAME = $(shell basename $$PWD)
+BIN_NAME = mySimpleComputer
 
 SRC_PATH = src
 BUILD_PATH = build
 LIB_PATH = lib
+
+OPT_LIB = -lm
 
 SRC_EXT = c
 
@@ -21,7 +23,7 @@ run: all
 	./$(BIN_NAME)
 
 release: $(BUILD_PATH)/main.o $(LIBS)
-	gcc $(COMPILE_FLAGS) $^ -o $(BIN_NAME)
+	gcc $(COMPILE_FLAGS) $^ -o $(BIN_NAME) $(OPT_LIB)
 
 $(BUILD_PATH)/main.o : $(SRC_PATH)/main.c
 	gcc $(COMPILE_FLAGS) -c -o $@ $<

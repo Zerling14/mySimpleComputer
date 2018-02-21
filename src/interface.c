@@ -3,19 +3,31 @@
 #include "interface.h"
 #include "controldevice.h"
 
+#define MEMORY_X 1
+#define MEMORY_Y 1
+#define MEMORY_H 12
+#define MEMORY_W (2 + 10 * 6)
+
+#define FLAGS_X (MEMORY_W + 1)
+#define FLAGS_Y 10
+
+#define KEYS_X (5 + 7 * 6)
+#define KEYS_Y (MEMORY_H + 1)
+#define KEYS_H 10
+
 int mi_printinterface()
 {
-	if (mi_printmemory(1, 1)) {
+	if (mi_printmemory(MEMORY_X, MEMORY_Y)) {
 		return 1;
 	}
-	if (mi_printflags(3 + 10 * 6, 10)) {
+	if (mi_printflags(FLAGS_X, FLAGS_Y)) {
 		return 1;
 	}
-	if (mi_printkeytooltip(5 + 7 * 6, 13)) {
+	if (mi_printkeytooltip(KEYS_X, KEYS_Y)) {
 		return 1;
 	}
 	
-	mt_gotoXY(1, 23);
+	mt_gotoXY(1, MEMORY_H + KEYS_H + 1);
 	return 0;
 }
 
@@ -38,14 +50,12 @@ int mi_printmemory(int x, int y)
 				return 1;
 			}
 			if (val >= 0) {
-				printf("+");
+				printf("+%04X", val);
 			} else {
-				printf("-");
+				printf("-%04X", 0 - val);
 			}
 			if (j < 9) {
-				printf("%04d ", val);
-			} else {
-				printf("%04d", val);
+				printf(" ");
 			}
 		}
 	}
