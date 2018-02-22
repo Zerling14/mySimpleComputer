@@ -2,9 +2,8 @@
 #define BIGCHARS_H
 #include "myterm.h"
 
-
-//afgi	j k l m n o p q r s t u v w x y z { | } ~
-//▒°±␋	┘ ┐ ┌ └ ┼ ⎺ ⎻ ─ ⎼ ⎽ ├ ┤ ┴ ┬ │ ≤ ≥ π ≠ £ ·
+//a f g i j k l m n o p q r s t u v w x y z { | } ~
+//▒ ° ± ␋ ┘ ┐ ┌ └ ┼ ⎺ ⎻ ─ ⎼ ⎽ ├ ┤ ┴ ┬ │ ≤ ≥ π ≠ £ ·
 
 #define ACS_ULCORNER 'l'
 #define ACS_LLCORNER 'm'

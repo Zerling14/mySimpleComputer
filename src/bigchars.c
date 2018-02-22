@@ -17,24 +17,27 @@ int bc_box(int x, int y, int w, int h)
 		return -1;
 	}
 	char *buff = malloc(w + 3);
+	if (!buff) {
+		return -1;
+	}
 	
-	for (int i = 0; i < h + 2; i++) {
+	for (int i = 0; i < h; i++) {
 		int str_count = 1;
 		if (i == 0) {
 			buff[0] = ACS_ULCORNER;
-			for (int j = 0; j < w; j++) {
+			for (int j = 0; j < w - 2; j++) {
 				buff[str_count++] = ACS_HLINE;
 			}
 			buff[str_count++] = ACS_URCORNER;
-		} else if (i == h + 1) {
+		} else if (i == h - 1) {
 			buff[0] = ACS_LLCORNER;
-			for (int j = 0; j < w; j++) {
+			for (int j = 0; j < w - 2; j++) {
 				buff[str_count++] = ACS_HLINE;
 			}
 			buff[str_count++] = ACS_LRCORNER;
 		} else {
 			buff[0] = ACS_VLINE;
-			for (int j = 0; j < w; j++) {
+			for (int j = 0; j < w - 2; j++) {
 				buff[str_count++] = ' ';
 			}
 			buff[str_count++] = ACS_VLINE;
@@ -44,5 +47,35 @@ int bc_box(int x, int y, int w, int h)
 		bc_printA(buff);
 	}
 	free(buff);
+	return 0;
+}
+
+int bc_printbigchar(int *big, int x, int y, enum colors clr1, enum colors clr2)
+{
+	mt_gotoXY(x, y);
+	int tmp_y = 0;
+	for (int i = 0; i < 32; i++) {
+		if (i % 8 == 0 && i != 0) {
+			tmp_y += 1;
+			mt_gotoXY(x, y + tmp_y);
+		}
+		if (big[0] & 1 << (31 - i)) {
+			char buff[2];
+			buff[0] = ACS_CKBOARD;
+			buff[1] = 0;
+			bc_printA(buff);
+		} else {
+			printf(" ");
+		}
+	}
+	printf("\n");
+	return 0;
+}
+int bc_setbigcharpos(int *big, int x, int y, int value)
+{
+	return 0;
+}
+int bc_getbigcharpos(int *big, int x, int y, int *value)
+{
 	return 0;
 }

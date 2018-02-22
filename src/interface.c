@@ -2,6 +2,7 @@
 #include "myterm.h"
 #include "interface.h"
 #include "controldevice.h"
+#include "bigchars.h"
 
 #define MEMORY_X 1
 #define MEMORY_Y 1
@@ -33,14 +34,9 @@ int mi_printinterface()
 
 int mi_printmemory(int x, int y)
 {
-	mt_gotoXY(x, y);
-	puts("┌─────────────────────────Memory────────────────────────────┐\n");
-	for (int i = 0; i < 10; i++) {
-		mt_gotoXY(x, y + i + 1);
-		puts("│                                                           │");
-	}
-	mt_gotoXY(x, y + 11);
-	puts("└───────────────────────────────────────────────────────────┘");
+	bc_box(x, y, MEMORY_W, MEMORY_H);
+	mt_gotoXY(x + 2, y);
+	puts("Memory");
 	for (int i = 0; i < 10; i++) {
 		mt_gotoXY(x + 1, y + i + 1);
 		for (int j = 0; j < 10; j++) {
@@ -64,15 +60,9 @@ int mi_printmemory(int x, int y)
 
 int mi_printflags(int x, int y)
 {
-	mt_gotoXY(x, y);
-	puts("┌──────Flags──────┐\n");
-	for (int i = 0; i < 1; i++) {
-		mt_gotoXY(x, y + i + 1);
-		puts("│                 │");
-	}
-	mt_gotoXY(x, y + 2);
-	puts("└─────────────────┘");
-	
+	bc_box(x, y, 19, 3);
+	mt_gotoXY(x + 2, y);
+	puts("Flags");
 	mt_gotoXY(x + 5, y + 1);
 	for (int i = 0; i < 5; i++) {
 		int val = 0;
@@ -85,15 +75,9 @@ int mi_printflags(int x, int y)
 
 int mi_printkeytooltip(int x, int y)
 {
-	mt_gotoXY(x, y);
-	puts("┌─Keys: ──────────────────────────┐\n");
-	for (int i = 0; i < 8; i++) {
-		mt_gotoXY(x, y + i + 1);
-		puts("│                                 │");
-	}
-	mt_gotoXY(x, y + 9);
-	puts("└─────────────────────────────────┘");
-	
+	bc_box(x, y, 35, 9);
+	mt_gotoXY(x + 2, y);
+	puts("Keys");
 	mt_gotoXY(x + 1, y + 1);
 	puts("l - load");
 	mt_gotoXY(x + 1, y + 2);

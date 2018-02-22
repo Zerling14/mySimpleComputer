@@ -110,6 +110,8 @@ void print_test2_lab2()
 	int rows, cols;
 	mt_get_screensize(&rows, &cols);
 	printf("rows: %d cols: %d\n", rows, cols);
+	
+	
 }
 
 void print_test_lab3()
@@ -118,7 +120,8 @@ void print_test_lab3()
 	//printf("afgijklmnopqrstuvwxyz{|}~\n");
 	//bc_printA(ACS_CKBOARD"\n");
 	//printf("\E(0%s\E(B", str);
-	bc_box(1, 1, 5, 2);
+	int tmp[2] = {0b1000000000000000, 0};
+	bc_printbigchar(tmp, 1, 1, 0, 0);
 }
 
 int main()
