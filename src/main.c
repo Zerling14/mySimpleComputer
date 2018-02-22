@@ -1,10 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
 #include "controldevice.h"
 #include "debug.h"
 #include "myterm.h"
 #include "interface.h"
-#include <math.h>
+#include "bigchars.h"
 
 void print_test_lab1()
 {
@@ -71,7 +72,8 @@ void print_test_lab1()
 	printf("encoded:%X, command:%d operand:%d\n", val2, command, operand);
 }
 
-void print_test_lab2() {
+void print_test_lab2()
+{
 	mt_clrsrc();
 	mt_gotoXY(10, 5);
 	mt_setbgcolor(red);
@@ -93,7 +95,8 @@ void print_test_lab2() {
 	mt_resetcolor();
 }
 
-void print_test2_lab2() {
+void print_test2_lab2()
+{
 	sc_memoryInit();
 	// set in memory multiplication table
 	for (int i = 0; i < 10; i++) { 
@@ -109,9 +112,20 @@ void print_test2_lab2() {
 	printf("rows: %d cols: %d\n", rows, cols);
 }
 
+void print_test_lab3()
+{
+	mt_clrsrc();
+	//printf("afgijklmnopqrstuvwxyz{|}~\n");
+	//bc_printA(ACS_CKBOARD"\n");
+	//printf("\E(0%s\E(B", str);
+	bc_box(1, 1, 5, 2);
+}
+
 int main()
 {
+	//print_test_lab1();
 	//print_test_lab2();
-	print_test2_lab2();
+	//print_test2_lab2();
+	print_test_lab3();
 	return 0;
 }
