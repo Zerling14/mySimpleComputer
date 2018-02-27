@@ -3,19 +3,22 @@
 #include <sys/ioctl.h>
 #include "myterm.h"
 
-int mt_clrsrc() {
+int mt_clrsrc()
+{
 	if (printf("\E[H\E[J") < 0) {
 		return -1;
 	}
 	return 0;
 }
-int mt_gotoXY(int x, int y) {
+int mt_gotoXY(int x, int y)
+{
 	if (printf("\E[%d;%dH", y, x) < 0) {
 		return -1;
 	}
 	return 0;
 }
-int mt_get_screensize(int *rows, int *cols) {
+int mt_get_screensize(int *rows, int *cols)
+{
 	if (!rows || !cols) {
 		return -1;
 	}
@@ -28,27 +31,37 @@ int mt_get_screensize(int *rows, int *cols) {
 	}
 	return 0;
 }
-int mt_setfgcolor(enum colors clr) {
+int mt_setfgcolor(enum colors clr)
+{
+	if (clr == -1) {
+		return 0;
+	}
 	if (printf("\E[4%dm", clr) < 0) {
 		return -1;
 	}
 	return 0;
 }
-int mt_setbgcolor(enum colors clr) {
+int mt_setbgcolor(enum colors clr)
+{
+	if (clr == -1) {
+		return 0;
+	}
 	if (printf("\E[3%dm", clr) < 0) {
 		return -1;
 	}
 	return 0;
 }
 
-int mt_resetcolor() {
+int mt_resetcolor()
+{
 	if (printf("\E[0m") < 0) {
 		return -1;
 	}
 	return 0;
 }
 
-int mt_resetcursor() {
+int mt_resetcursor()
+{
 	if (printf("\E[H") < 0) {
 		return -1;
 	}

@@ -132,6 +132,7 @@ int sc_commandEncode(int command, int operand, int *value)
 	*value = operand | command << 7;
 	return 0;
 }
+
 int sc_commandDecode(int value, int *command, int *operand)
 {
 	if (!command || !operand) {
@@ -145,4 +146,3 @@ int sc_commandDecode(int value, int *command, int *operand)
 	*operand = value & 0x7F;
 	return 0;
 }
-

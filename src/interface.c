@@ -16,9 +16,14 @@
 #define KEYS_Y (MEMORY_H + 1)
 #define KEYS_H 10
 
-int mi_printinterface()
+#define BIGNUM_X 1
+#define BIGNUM_Y (KEYS_H + 3)
+#define BIGNUM_H (KEYS_H)
+#define BIGNUM_W (KEYS_X - 1)
+
+int mi_printinterface(int select_x, int select_y)
 {
-	if (mi_printmemory(MEMORY_X, MEMORY_Y)) {
+	if (mi_printmemory(MEMORY_X, MEMORY_Y, select_x, select_y)) {
 		return 1;
 	}
 	if (mi_printflags(FLAGS_X, FLAGS_Y)) {
@@ -27,12 +32,32 @@ int mi_printinterface()
 	if (mi_printkeytooltip(KEYS_X, KEYS_Y)) {
 		return 1;
 	}
+	if (mi_printselectedmemory(BIGNUM_X, BIGNUM_Y, select_x + select_y * 10)) {
+		return 1;
+	}
 	
 	mt_gotoXY(1, MEMORY_H + KEYS_H + 1);
 	return 0;
 }
 
-int mi_printmemory(int x, int y)
+int mi_printselectedmemory(int x, int y, int address)
+{
+	bc_box(x, y, BIGNUM_W, BIGNUM_H);
+	int value;
+	if (sc_memoryGet(address, &value)) {
+		return 1;
+	}
+	if (value >= 0) {
+		bc_printbigchar(big_char_plus, x + 1, y, -1, 7);
+		bc_bigprintint(x + 10, y, -1, 7, value);
+	} else {
+		bc_printbigchar(big_char_minus, x + 1, y, -1, 7);
+		bc_bigprintint(x + 10, y, -1, 7, 0 - value);
+	}
+	return 0;
+}
+
+int mi_printmemory(int x, int y, int select_x, int select_y)
 {
 	bc_box(x, y, MEMORY_W, MEMORY_H);
 	mt_gotoXY(x + 2, y);
@@ -45,6 +70,11 @@ int mi_printmemory(int x, int y)
 			if (sc_memoryGet(i * 10 + j, &val)) {
 				return 1;
 			}
+			if (j == select_x && i == select_y) {
+				mt_setfgcolor(blue);
+			} else {
+				mt_resetcolor();
+			}
 			if (val >= 0) {
 				printf("+%04X", val);
 			} else {
@@ -53,6 +83,7 @@ int mi_printmemory(int x, int y)
 			if (j < 9) {
 				printf(" ");
 			}
+			mt_resetcolor();
 		}
 	}
 	return 0;
@@ -75,7 +106,7 @@ int mi_printflags(int x, int y)
 
 int mi_printkeytooltip(int x, int y)
 {
-	bc_box(x, y, 35, 9);
+	bc_box(x, y, 35, KEYS_H);
 	mt_gotoXY(x + 2, y);
 	puts("Keys");
 	mt_gotoXY(x + 1, y + 1);
