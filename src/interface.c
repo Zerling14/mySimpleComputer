@@ -48,11 +48,11 @@ int mi_printselectedmemory(int x, int y, int address)
 		return 1;
 	}
 	if (value >= 0) {
-		bc_printbigchar(big_char_plus, x + 1, y, -1, 7);
-		bc_bigprintint(x + 10, y, -1, 7, value);
+		bc_printbigchar(big_char_plus, x + 1, y, none, 3);
+		bc_bigprintint(x + 10, y, none, 3, value);
 	} else {
-		bc_printbigchar(big_char_minus, x + 1, y, -1, 7);
-		bc_bigprintint(x + 10, y, -1, 7, 0 - value);
+		bc_printbigchar(big_char_minus, x + 1, y, none, 3);
+		bc_bigprintint(x + 10, y, none, 3, 0 - value);
 	}
 	return 0;
 }

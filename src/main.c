@@ -133,13 +133,15 @@ void print_test_lab4()
 	}
 	bc_bigcharwrite(filedesc, big_char_num[1], 2);
 	close(filedesc);
+
 	filedesc = open("testfile.txt", O_RDONLY);
 	int count;
 	int test[2] = {0, 0};
 	bc_bigcharread(filedesc, test, 2, &count);
 	bc_printbigchar(test, 1, 0, 0, 1);
-	bc_setbigcharpos(test, 0, 0, 1);
-	bc_printbigchar(test, 1, 9, 0, 1);
+
+	bc_setbigcharpos(test, 0, 2, 1);
+	bc_printbigchar(test, 1, 9, red, blue);
 	//printf("%d\n", count);
 	//bc_bigprintint(1, 0, 0x0123);
 	//bc_bigprintint(1, 9, 0x4567);

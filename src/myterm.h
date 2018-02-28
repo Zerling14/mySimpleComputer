@@ -22,7 +22,8 @@ white     COLOR_WHITE       7     max,max,max
 */
 
 enum colors {
-	black,
+	none = -1,
+	black = 0,
 	red,
 	green,
 	yellow,
