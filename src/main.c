@@ -3,6 +3,8 @@
 #include <math.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <sys/time.h>
+#include <signal.h>
 #include "controldevice.h"
 #include "debug.h"
 #include "myterm.h"
@@ -149,7 +151,8 @@ void print_test_lab4()
 	//bc_bigprintint(1, 27, 0xCDEF);
 }
 
-void print_test_lab5() {
+void print_test_lab5()
+{
 	enum keys key;
 	rk_mytermsave();
 	rk_readkey(&key);
@@ -157,10 +160,69 @@ void print_test_lab5() {
 	printf("input key %d\n", key);
 }
 
+void sighandler(int signo)
+{
+	printf("Signal %d\n", signo);
+	if (signo == 14) {
+		raise(SIGUSR1);
+	}
+}
+
+void print_test_lab6()
+{
+	struct itimerval nval;
+	
+	signal(SIGALRM, sighandler);
+	signal(SIGUSR1, sighandler);
+	
+	nval.it_interval.tv_sec = 1;
+	nval.it_interval.tv_usec = 0;
+	nval.it_value.tv_sec = 1;
+	nval.it_value.tv_usec = 0;
+	//raise(SIGINT);
+	setitimer(ITIMER_REAL, &nval, 0);
+	
+	while (1) {
+		pause();
+	}
+}
+
+void sigalrm_proccess(int signo)
+{
+	int val;
+	if (sc_regGet(IF, &val)) {
+		return;
+	}
+	insp_reg++;
+}
+
+void sigusr1_proccess(int signo)
+{
+	rk_mytermrestor();
+	sc_memoryInit();
+	sc_regInit();
+	if (sc_regSet(IF, 1)) {
+		return;
+	}
+}
+
 void print_interface()
 {
 	rk_mytermrestor();
 	sc_memoryInit();
+	sc_regInit();
+	signal(SIGALRM, sigalrm_proccess);
+	signal(SIGUSR1, sigusr1_proccess);
+
+	struct itimerval nval;
+
+	nval.it_interval.tv_sec = 1;
+	nval.it_interval.tv_usec = 0;
+	nval.it_value.tv_sec = 1;
+	nval.it_value.tv_usec = 0;
+
+	setitimer(ITIMER_REAL, &nval, 0);
+
 	// set in memory multiplication table
 	for (int i = 0; i < 10; i++) { 
 		for (int j = 0; j < 10; j++) {
@@ -242,7 +304,8 @@ int main()
 	//print_test2_lab2();
 	//print_test_lab4();
 	//print_test_lab5();
-	print_interface();
+	print_test_lab6();
+	//print_interface();
 	//mt_clrsrc();
 	//for (int num = 0; num < 16; num++) {
 		/*int tmp[2] = {0, 0};
