@@ -15,6 +15,7 @@
 int memory[MEMORY_SIZE];
 int flag_reg;
 int insp_reg;
+int acc_reg;
 
 int sc_memoryInit();
 int sc_memorySet(int address, int value);

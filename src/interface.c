@@ -32,10 +32,16 @@ int mi_printinterface(int select_x, int select_y)
 	if (mi_printkeytooltip(KEYS_X, KEYS_Y)) {
 		return 1;
 	}
-	if (mi_printselectedmemory(BIGNUM_X, BIGNUM_Y, select_x + select_y * 10)) {
+	if (mi_printinstrutioncounter(MEMORY_W + 1, 4, insp_reg)) {
+		return 1;
+	}
+	if (mi_printaccumulator(MEMORY_W + 1, 1, acc_reg)) {
 		return 1;
 	}
 	
+	if (mi_printselectedmemory(BIGNUM_X, BIGNUM_Y, select_x + select_y * 10)) {
+		return 1;
+	}
 	mt_gotoXY(1, MEMORY_H + KEYS_H + 1);
 	return 0;
 }
@@ -101,6 +107,34 @@ int mi_printflags(int x, int y)
 		printf("%d ", val);
 	}
 	
+	return 0;
+}
+
+int mi_printinstrutioncounter(int x, int y, int val)
+{
+	bc_box(x, y, 19, 3);
+	mt_gotoXY(x + 2, y);
+	puts("instCount");
+	mt_gotoXY(x + 5, y + 1);
+	if (val >= 0) {
+		printf("+%04X", val);
+	} else {
+		printf("-%04X", 0 - val);
+	}
+	return 0;
+}
+
+int mi_printaccumulator(int x, int y, int val)
+{
+	bc_box(x, y, 19, 3);
+	mt_gotoXY(x + 2, y);
+	puts("accumulator");
+	mt_gotoXY(x + 5, y + 1);
+	if (val >= 0) {
+		printf("+%04X", val);
+	} else {
+		printf("-%04X", 0 - val);
+	}
 	return 0;
 }
 

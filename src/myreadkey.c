@@ -13,7 +13,9 @@ int rk_readkey(enum keys *key)
 	if (tcgetattr(STDIN_FILENO, &options) != 0) {
 		return -1;
 	}
-	rk_mytermsave();
+	if(access("termsettings", F_OK) == -1) {
+		rk_mytermsave();
+	}
 	if (rk_mytermregime(0, 0, 1, 0, 1) != 0) {
 		return -1;
 	}

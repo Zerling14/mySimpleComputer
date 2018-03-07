@@ -216,18 +216,21 @@ void print_test_lab6()
 	}
 }
 
+int selected_x = 0, selected_y = 0;
 void sigalrm_proccess(int signo)
 {
 	int val;
 	if (sc_regGet(IF, &val)) {
 		return;
 	}
-	insp_reg++;
+	if (!val) {
+		insp_reg++;
+		mi_printinterface(selected_x, selected_y);
+	}
 }
 
 void sigusr1_proccess(int signo)
 {
-	rk_mytermrestor();
 	sc_memoryInit();
 	sc_regInit();
 	if (sc_regSet(IF, 1)) {
@@ -235,14 +238,22 @@ void sigusr1_proccess(int signo)
 	}
 }
 
+void sigint_proccess(int signo)
+{
+	rk_mytermrestor();
+	exit(0);
+}
+
 void print_interface()
 {
 	rk_mytermrestor();
 	sc_memoryInit();
 	sc_regInit();
+	sc_regSet(IF, 1);
 	signal(SIGALRM, sigalrm_proccess);
 	signal(SIGUSR1, sigusr1_proccess);
-
+	signal(SIGINT, sigint_proccess);
+	
 	struct itimerval nval;
 
 	nval.it_interval.tv_sec = 1;
@@ -258,7 +269,6 @@ void print_interface()
 			sc_memorySet(i * 10 + j, i * j * pow(-1, i + j));
 		}
 	}
-	int selected_x = 0, selected_y = 0;
 	int exit_flag = 0;
 	int tmp_val;
 	enum keys key;
@@ -266,7 +276,7 @@ void print_interface()
 	
 	mi_printinterface(selected_x, selected_y);
 	while (exit_flag == 0) {
-		if (kbhit() > 0) {
+		//if (kbhit() > 0) {
 			rk_readkey(&key);
 			if (key == KEY_down && selected_y < 9) {
 				selected_y++;
@@ -316,19 +326,43 @@ void print_interface()
 					printf("error memory address: %d cant writed", selected_y * 10 + selected_x);
 					return;
 				}
+			} else if (key == KEY_r) {
+				sc_regSet(IF, 0);
+				printf("run\n");
 			} else if (key == KEY_s) {
-				sc_memorySave("default.bin");
-				printf("save\n");
+				printf("save file name: ");
+				char buff[20];
+				scanf("%s", buff);
+				sc_memorySave(buff);
 			} else if (key == KEY_l) {
-				sc_memoryLoad("default.bin");
-				printf("load\n");
+				printf("load file name: ");
+				char buff[20];
+				scanf("%s", buff);
+				sc_memoryLoad(buff);
+			} else if (key == KEY_i) {
+				raise (SIGUSR1);
+				printf("reset\n");
+			} else if (key == KEY_t) {
+				insp_reg++;
+				mi_printinterface(selected_x, selected_y);
+				printf("step\n");
+			} else if (key == KEY_f5) {
+				printf("accumulator value: ");
+				int buff;
+				scanf("%X", &buff);
+				acc_reg = buff;
+				mi_printinterface(selected_x, selected_y);
+			} else if (key == KEY_f6) {
+				printf("instructionCounter value: ");
+				int buff;
+				scanf("%X", &buff);
+				insp_reg = buff;
+				mi_printinterface(selected_x, selected_y);
 			} else if (key == KEY_other || key == KEY_q) {
 				exit_flag = 1;
 			}
 			mi_printinterface(selected_x, selected_y);
-		}
-		
-		
+		//}
 	}
 	rk_mytermrestor();
 }
