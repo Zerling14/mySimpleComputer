@@ -5,12 +5,41 @@
 #include <fcntl.h>
 #include <sys/time.h>
 #include <signal.h>
+#include <termios.h>
+#include <sys/ioctl.h>
 #include "controldevice.h"
 #include "debug.h"
 #include "myterm.h"
 #include "interface.h"
 #include "bigchars.h"
 #include "myreadkey.h"
+
+int kbhit(void)
+{
+	int			cnt = 0;
+	int			error;
+	static struct termios	Otty, Ntty;
+
+	tcgetattr(0, &Otty);
+	Ntty = Otty;
+
+	Ntty.c_iflag		= 0;	   /* input mode	*/
+	Ntty.c_oflag		= 0;	   /* output mode	*/
+	Ntty.c_lflag		&= ~ICANON;/* raw mode 		*/
+	Ntty.c_cc[VMIN]		= CMIN;	   /* minimum chars to wait for */
+	Ntty.c_cc[VTIME]	= CTIME;   /* minimum wait time	*/
+
+	if (0 == (error = tcsetattr(0, TCSANOW, &Ntty))) {
+		struct timeval	tv;
+		error     += ioctl(0, FIONREAD, &cnt);
+		error     += tcsetattr(0, TCSANOW, &Otty);
+		tv.tv_sec  = 0;
+		tv.tv_usec = 100; /* insert a minimal delay */
+		select(1, NULL, NULL, NULL, &tv);
+	}
+	rk_mytermrestor();
+	return (error == 0 ? cnt : -1 );
+}
 
 void print_test_lab1()
 {
@@ -234,67 +263,74 @@ void print_interface()
 	int tmp_val;
 	enum keys key;
 	mt_clrsrc();
+	
+	mi_printinterface(selected_x, selected_y);
 	while (exit_flag == 0) {
-		mi_printinterface(selected_x, selected_y);
-		rk_readkey(&key);
-		if (key == KEY_down && selected_y < 9) {
-			selected_y++;
-		} else if (key == KEY_up && selected_y > 0) {
-			selected_y--;
-		} else if (key == KEY_right && selected_x < 9) {
-			selected_x++;
-		} else if (key == KEY_left && selected_x > 0) {
-			selected_x--;
-		} else if ((key >= '0' && key <= '9') || (key >= 'a' && key <= 'f')) {
-			if (sc_memoryGet(selected_y * 10 + selected_x, &tmp_val)) {
-				printf("error memory address: %d cant read", selected_y * 10 + selected_x);
-				return;
+		if (kbhit() > 0) {
+			rk_readkey(&key);
+			if (key == KEY_down && selected_y < 9) {
+				selected_y++;
+			} else if (key == KEY_up && selected_y > 0) {
+				selected_y--;
+			} else if (key == KEY_right && selected_x < 9) {
+				selected_x++;
+			} else if (key == KEY_left && selected_x > 0) {
+				selected_x--;
+			} else if ((key >= '0' && key <= '9') || (key >= 'a' && key <= 'f')) {
+				if (sc_memoryGet(selected_y * 10 + selected_x, &tmp_val)) {
+					printf("error memory address: %d cant read", selected_y * 10 + selected_x);
+					return;
+				}
+				if (tmp_val >= 0) {
+					tmp_val = (((key >= '0' && key <= '9') ? (key - '0') : (key - 'a' + 10)) | (tmp_val << 4)) & 0xFFFF;
+				} else {
+					tmp_val = 0 - ((((key >= '0' && key <= '9') ? (key - '0') : (key - 'a' + 10)) | ((0 - tmp_val) << 4)) & 0xFFFF);
+				}
+				if (sc_memorySet(selected_y * 10 + selected_x, tmp_val)) {
+					printf("error memory address: %d cant writed", selected_y * 10 + selected_x);
+					return;
+				}
+			} else if (key == KEY_backspace) {
+				if (sc_memoryGet(selected_y * 10 + selected_x, &tmp_val)) {
+					printf("error memory address: %d cant read", selected_y * 10 + selected_x);
+					return;
+				}
+				if (tmp_val >= 0) {
+					tmp_val = tmp_val >> 4 & 0xFFFF;
+				} else {
+					tmp_val = 0 - (((0 - tmp_val) & 0xFFFF) >> 4);
+				}
+				if (sc_memorySet(selected_y * 10 + selected_x, tmp_val)) {
+					printf("error memory address: %d cant writed", selected_y * 10 + selected_x);
+					return;
+				}
+			} else if (key == KEY_plus || key == KEY_minus) {
+				if (sc_memoryGet(selected_y * 10 + selected_x, &tmp_val)) {
+					printf("error memory address: %d cant read", selected_y * 10 + selected_x);
+					return;
+				}
+				if ((tmp_val > 0 && key == KEY_minus) || (tmp_val < 0 && key == KEY_plus)) {
+					tmp_val = 0 - tmp_val;
+				}
+				if (sc_memorySet(selected_y * 10 + selected_x, tmp_val)) {
+					printf("error memory address: %d cant writed", selected_y * 10 + selected_x);
+					return;
+				}
+			} else if (key == KEY_s) {
+				sc_memorySave("default.bin");
+				printf("save\n");
+			} else if (key == KEY_l) {
+				sc_memoryLoad("default.bin");
+				printf("load\n");
+			} else if (key == KEY_other || key == KEY_q) {
+				exit_flag = 1;
 			}
-			if (tmp_val >= 0) {
-				tmp_val = (((key >= '0' && key <= '9') ? (key - '0') : (key - 'a' + 10)) | (tmp_val << 4)) & 0xFFFF;
-			} else {
-				tmp_val = 0 - ((((key >= '0' && key <= '9') ? (key - '0') : (key - 'a' + 10)) | ((0 - tmp_val) << 4)) & 0xFFFF);
-			}
-			if (sc_memorySet(selected_y * 10 + selected_x, tmp_val)) {
-				printf("error memory address: %d cant writed", selected_y * 10 + selected_x);
-				return;
-			}
-		} else if (key == KEY_backspace) {
-			if (sc_memoryGet(selected_y * 10 + selected_x, &tmp_val)) {
-				printf("error memory address: %d cant read", selected_y * 10 + selected_x);
-				return;
-			}
-			if (tmp_val >= 0) {
-				tmp_val = tmp_val >> 4 & 0xFFFF;
-			} else {
-				tmp_val = 0 - (((0 - tmp_val) & 0xFFFF) >> 4);
-			}
-			if (sc_memorySet(selected_y * 10 + selected_x, tmp_val)) {
-				printf("error memory address: %d cant writed", selected_y * 10 + selected_x);
-				return;
-			}
-		} else if (key == KEY_plus || key == KEY_minus) {
-			if (sc_memoryGet(selected_y * 10 + selected_x, &tmp_val)) {
-				printf("error memory address: %d cant read", selected_y * 10 + selected_x);
-				return;
-			}
-			if ((tmp_val > 0 && key == KEY_minus) || (tmp_val < 0 && key == KEY_plus)) {
-				tmp_val = 0 - tmp_val;
-			}
-			if (sc_memorySet(selected_y * 10 + selected_x, tmp_val)) {
-				printf("error memory address: %d cant writed", selected_y * 10 + selected_x);
-				return;
-			}
-		} else if (key == KEY_s) {
-			sc_memorySave("default.bin");
-			printf("save\n");
-		} else if (key == KEY_l) {
-			sc_memoryLoad("default.bin");
-			printf("load\n");
-		} else if (key == KEY_other || key == KEY_q) {
-			exit_flag = 1;
+			mi_printinterface(selected_x, selected_y);
 		}
+		
+		
 	}
+	rk_mytermrestor();
 }
 
 int main()
@@ -304,8 +340,8 @@ int main()
 	//print_test2_lab2();
 	//print_test_lab4();
 	//print_test_lab5();
-	print_test_lab6();
-	//print_interface();
+	//print_test_lab6();
+	print_interface();
 	//mt_clrsrc();
 	//for (int num = 0; num < 16; num++) {
 		/*int tmp[2] = {0, 0};
