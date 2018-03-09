@@ -1,5 +1,5 @@
-#ifndef CONTOLDEVICE_H
-#define CONTOLDEVICE_H
+#ifndef MEMORY_H_GUARD
+#define MEMORY_H_GUARD
 
 #define MEMORY_SIZE 100
 #define CELL_SIZE sizeof(int)

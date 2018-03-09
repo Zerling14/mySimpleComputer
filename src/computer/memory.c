@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "controldevice.h"
+#include "memory.h"
 
 int sc_memoryInit()
 {
@@ -104,7 +104,7 @@ int sc_regGet(int num_register, int *value)
 	return 0;
 }
 
-int processor_commands[] = {10, 11, 20, 21, 30, 31, 32, 33, 40, 41, 42, 43};
+int processor_commands[] = {10, 11, 20, 21, 22, 30, 31, 32, 33, 40, 41, 42, 43};
 int user_commands_start = 51;
 int user_commands_end = 76;
 
@@ -143,7 +143,7 @@ int sc_commandDecode(int value, int *command, int *operand)
 		sc_regSet(EF, 1);
 		return 1;
 	}
-	*command = (value & 0x3F00) >> 7;
+	*command = (value & 0x3F80) >> 7;
 	*operand = value & 0x7F;
 	return 0;
 }

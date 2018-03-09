@@ -1,7 +1,8 @@
 #include <stdio.h>
+#include <string.h>
 #include "myterm.h"
 #include "interface.h"
-#include "controldevice.h"
+#include "memory.h"
 #include "bigchars.h"
 
 #define MEMORY_X 1
@@ -21,6 +22,39 @@
 #define BIGNUM_H (KEYS_H)
 #define BIGNUM_W (KEYS_X - 1)
 
+char log_buff[255] = {};
+
+int mi_printlog(int x, int y)
+{
+	mt_gotoXY(x, y);
+	printf("Logs[%lu]:\n%s", strlen(log_buff), log_buff);
+	if (strlen(log_buff) >= 120) {
+		log_buff[0] = 0;
+		mt_clrsrc();
+	}
+	return 0;
+}
+
+int mi_printdecoderesult(int x, int y, int address)
+{
+	bc_box(x, y, 19, 3);
+	mt_gotoXY(x + 2, y);
+	puts("decodeResult");
+	mt_gotoXY(x + 5, y + 1);
+	int value;
+	if (sc_memoryGet(address, &value)) {
+		return 1;
+	}
+	int command;
+	int operand;
+	if (sc_commandDecode(value, &command, &operand)) {
+		printf("nan:nan");
+	} else {
+		printf("%02d:%02d", command, operand);
+	}
+	return 0;
+}
+
 int mi_printinterface(int select_x, int select_y)
 {
 	if (mi_printmemory(MEMORY_X, MEMORY_Y, select_x, select_y)) {
@@ -35,14 +69,19 @@ int mi_printinterface(int select_x, int select_y)
 	if (mi_printinstrutioncounter(MEMORY_W + 1, 4, insp_reg)) {
 		return 1;
 	}
+	if (mi_printdecoderesult(MEMORY_W + 1, 7, select_x + select_y * 10)) {
+		return 1;
+	}
 	if (mi_printaccumulator(MEMORY_W + 1, 1, acc_reg)) {
 		return 1;
 	}
-	
 	if (mi_printselectedmemory(BIGNUM_X, BIGNUM_Y, select_x + select_y * 10)) {
 		return 1;
 	}
-	mt_gotoXY(1, MEMORY_H + KEYS_H + 1);
+	if (mi_printlog(1, BIGNUM_Y + BIGNUM_H)) {
+		return 1;
+	}
+	//mt_gotoXY(1, MEMORY_H + KEYS_H + 1);
 	return 0;
 }
 
@@ -101,11 +140,19 @@ int mi_printflags(int x, int y)
 	mt_gotoXY(x + 2, y);
 	puts("Flags");
 	mt_gotoXY(x + 5, y + 1);
-	for (int i = 0; i < 5; i++) {
-		int val = 0;
-		sc_regGet(i, &val);		
-		printf("%d ", val);
-	}
+	//for (int i = 0; i < 5; i++) {
+	int val = 0;
+	sc_regGet(0, &val);
+	printf("C%d", val);
+	sc_regGet(1, &val);
+	printf("D%d", val);
+	sc_regGet(2, &val);
+	printf("M%d", val);
+	sc_regGet(3, &val);
+	printf("I%d", val);
+	sc_regGet(4, &val);
+	printf("E%d", val);
+	//}
 	
 	return 0;
 }

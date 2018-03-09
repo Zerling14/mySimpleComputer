@@ -7,12 +7,14 @@
 #include <signal.h>
 #include <termios.h>
 #include <sys/ioctl.h>
-#include "controldevice.h"
+#include <string.h>
+#include "memory.h"
 #include "debug.h"
 #include "myterm.h"
 #include "interface.h"
 #include "bigchars.h"
 #include "myreadkey.h"
+#include "cpu.h"
 
 int kbhit(void)
 {
@@ -224,9 +226,21 @@ void sigalrm_proccess(int signo)
 		return;
 	}
 	if (!val) {
-		insp_reg++;
+		int insp_reg_tmp = insp_reg;
+		if (CU()) {
+			sc_regSet(IF, 1);
+		} else if (insp_reg_tmp == insp_reg) {
+			insp_reg++;
+		}
 		mi_printinterface(selected_x, selected_y);
 	}
+	struct itimerval nval;
+	nval.it_interval.tv_sec = 0;
+	nval.it_interval.tv_usec = 0;
+	nval.it_value.tv_sec = 0;
+	nval.it_value.tv_usec = 100000;
+
+	setitimer(ITIMER_REAL, &nval, 0);
 }
 
 void sigusr1_proccess(int signo)
@@ -244,6 +258,12 @@ void sigint_proccess(int signo)
 	exit(0);
 }
 
+void sigwinch_proccess(int signo)
+{
+	mt_clrsrc();
+	mi_printinterface(selected_x, selected_y);
+}
+
 void print_interface()
 {
 	rk_mytermrestor();
@@ -253,10 +273,12 @@ void print_interface()
 	signal(SIGALRM, sigalrm_proccess);
 	signal(SIGUSR1, sigusr1_proccess);
 	signal(SIGINT, sigint_proccess);
-	
+	signal(SIGWINCH, sigwinch_proccess);
 	struct itimerval nval;
 
-	nval.it_interval.tv_sec = 1;
+	printf("\033[8;80;81t");
+
+	nval.it_interval.tv_sec = 0;
 	nval.it_interval.tv_usec = 0;
 	nval.it_value.tv_sec = 1;
 	nval.it_value.tv_usec = 0;
@@ -264,10 +286,107 @@ void print_interface()
 	setitimer(ITIMER_REAL, &nval, 0);
 
 	// set in memory multiplication table
-	for (int i = 0; i < 10; i++) { 
-		for (int j = 0; j < 10; j++) {
-			sc_memorySet(i * 10 + j, i * j * pow(-1, i + j));
+	if (0) {
+		for (int i = 0; i < 10; i++) { 
+			for (int j = 0; j < 10; j++) {
+				sc_memorySet(i * 10 + j, i * j * pow(-1, i + j));
+			}
 		}
+	} else {
+		int value;
+		sc_commandEncode(COMMAND_SET, 0, &value);
+		sc_memorySet(0, value);
+
+		sc_commandEncode(COMMAND_STORE, 97, &value);
+		sc_memorySet(1, value);
+		
+		sc_commandEncode(COMMAND_SET, 1, &value);
+		sc_memorySet(2, value);
+		
+		sc_commandEncode(COMMAND_STORE, 98, &value);
+		sc_memorySet(3, value);
+		
+		sc_commandEncode(COMMAND_SET, 0, &value);
+		sc_memorySet(4, value);
+		
+		sc_commandEncode(COMMAND_STORE, 99, &value);
+		sc_memorySet(5, value);
+		
+		sc_commandEncode(COMMAND_READ, 96, &value);
+		sc_memorySet(6, value);
+		
+		sc_commandEncode(COMMAND_LOAD, 96, &value);
+		sc_memorySet(7, value);
+		
+		sc_commandEncode(COMMAND_SUB, 99, &value);
+		sc_memorySet(8, value);
+		
+		sc_commandEncode(COMMAND_JZ, 21, &value);
+		sc_memorySet(9, value);
+		
+		sc_commandEncode(COMMAND_LOAD, 97, &value);
+		sc_memorySet(10, value);
+		
+		sc_commandEncode(COMMAND_STORE, 95, &value);
+		sc_memorySet(11, value);
+		
+		sc_commandEncode(COMMAND_LOAD, 98, &value);
+		sc_memorySet(12, value);
+		
+		sc_commandEncode(COMMAND_STORE, 97, &value);
+		sc_memorySet(13, value);
+		
+		sc_commandEncode(COMMAND_LOAD, 95, &value);
+		sc_memorySet(14, value);
+		
+		sc_commandEncode(COMMAND_ADD, 98, &value);
+		sc_memorySet(15, value);
+		
+		sc_commandEncode(COMMAND_STORE, 98, &value);
+		sc_memorySet(16, value);
+		
+		sc_commandEncode(COMMAND_SET, 1, &value);
+		sc_memorySet(17, value);
+		
+		sc_commandEncode(COMMAND_ADD, 99, &value);
+		sc_memorySet(18, value);
+		
+		sc_commandEncode(COMMAND_STORE, 99, &value);
+		sc_memorySet(19, value);
+		
+		sc_commandEncode(COMMAND_JUMP, 7, &value);
+		sc_memorySet(20, value);
+		
+		sc_commandEncode(COMMAND_WRITE, 97, &value);
+		sc_memorySet(21, value);
+		
+		sc_commandEncode(COMMAND_HALT, 0, &value);
+		sc_memorySet(22, value);
+		/*
+	0	SET 0
+	1	STORE 97 //a
+	2	SET 1
+	3	STORE 98 //b
+	4	SET 0
+	5	STORE 99 //i
+	6	READ 96  //num
+	7	LOAD 96
+	8	SUB 99   //num - i
+	9	JZ write://num - i == 0
+	10	LOAD 97
+	11	STORE 95 //tmp = a
+	12	LOAD 98
+	13	STORE 97 //a = b
+	14	LOAD 95
+	15	ADD 98
+	16	STORE 98 //b = tmp + b
+	17	SET 1
+	18	ADD 99
+	19	STORE 99
+	20	JUMP 9
+	21	write: WRITE 97
+	22	HALT
+		*/
 	}
 	int exit_flag = 0;
 	int tmp_val;
@@ -276,7 +395,11 @@ void print_interface()
 	
 	mi_printinterface(selected_x, selected_y);
 	while (exit_flag == 0) {
-		//if (kbhit() > 0) {
+		int ignore_val;
+		if (sc_regGet(IF, &ignore_val)) {
+			return;
+		}
+		if (ignore_val) {
 			rk_readkey(&key);
 			if (key == KEY_down && selected_y < 9) {
 				selected_y++;
@@ -328,41 +451,59 @@ void print_interface()
 				}
 			} else if (key == KEY_r) {
 				sc_regSet(IF, 0);
-				printf("run\n");
+				strcat(log_buff, "run\n");
 			} else if (key == KEY_s) {
+				strcat(log_buff, "save file name: ");
 				printf("save file name: ");
 				char buff[20];
 				scanf("%s", buff);
+				strcat(log_buff, buff);
+				strcat(log_buff, "\n");
 				sc_memorySave(buff);
 			} else if (key == KEY_l) {
+				strcat(log_buff, "load file name: ");
 				printf("load file name: ");
 				char buff[20];
 				scanf("%s", buff);
+				strcat(log_buff, buff);
+				strcat(log_buff, "\n");
 				sc_memoryLoad(buff);
 			} else if (key == KEY_i) {
 				raise (SIGUSR1);
-				printf("reset\n");
+				strcat(log_buff, "reset\n");
 			} else if (key == KEY_t) {
-				insp_reg++;
-				mi_printinterface(selected_x, selected_y);
-				printf("step\n");
+				int insp_reg_tmp = insp_reg;
+				if (CU()) {
+					sc_regSet(IF, 1);
+				} else if (insp_reg_tmp == insp_reg) {
+					insp_reg++;
+				}
+				strcat(log_buff, "step\n");
 			} else if (key == KEY_f5) {
+				strcat(log_buff, "accumulator value: ");
 				printf("accumulator value: ");
 				int buff;
 				scanf("%X", &buff);
+				char buff_char[10];
+				sprintf(buff_char, "%X\n", buff);
+				strcat(log_buff, buff_char);
 				acc_reg = buff;
 				mi_printinterface(selected_x, selected_y);
 			} else if (key == KEY_f6) {
+				strcat(log_buff, "instructionCounter value: ");
 				printf("instructionCounter value: ");
 				int buff;
 				scanf("%X", &buff);
+				char buff_char[10];
+				sprintf(buff_char, "%X\n", buff);
+				strcat(log_buff, buff_char);
 				insp_reg = buff;
 				mi_printinterface(selected_x, selected_y);
 			} else if (key == KEY_other || key == KEY_q) {
 				exit_flag = 1;
 			}
 			mi_printinterface(selected_x, selected_y);
-		//}
+		}
 	}
 	rk_mytermrestor();
 }
