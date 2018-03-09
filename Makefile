@@ -8,7 +8,13 @@ SRC_PATH = src
 BUILD_PATH = build
 LIB_PATH = lib
 
-OPT_LIB = -lm
+OPT_LIB_PATH = -L./lib
+
+OPT_INCLUDE_PATH = -I./src/computer
+
+OPT_LIB = -lm -lmemory -lcommand -lcpu -ldebug -linterface -lmyreadkey -lmyterm -lbigchars
+
+OPT_LIB_ASMC = -lm -llexer -lprintinfo -lmemory -lcommand
 
 SRC_EXT = c
 
@@ -21,10 +27,10 @@ SOURCES_ASMC = $(shell find $(SRC_PATH)/$(ASMC_PATH)/ -name '*.$(SRC_EXT)')
 LIB_SOURCES_ASMC = $(filter-out $(SRC_PATH)/$(ASMC_PATH)/main.c, $(SOURCES_ASMC))
 
 OBJECTS_COMP = $(SOURCES_COMP:$(SRC_PATH)/$(COMP_PATH)/%.$(SRC_EXT)=$(BUILD_PATH)/$(COMP_PATH)/%.o)
-LIBS_COMP = $(LIB_SOURCES_COMP:$(SRC_PATH)/$(COMP_PATH)/%.$(SRC_EXT)=$(LIB_PATH)/$(COMP_PATH)/%.a)
+LIBS_COMP = $(LIB_SOURCES_COMP:$(SRC_PATH)/$(COMP_PATH)/%.$(SRC_EXT)=$(LIB_PATH)/lib%.a)
 
 OBJECTS_ASMC = $(SOURCES_ASMC:$(SRC_PATH)/$(ASMC_PATH)/%.$(SRC_EXT)=$(BUILD_PATH)/$(ASMC_PATH)/%.o)
-LIBS_ASMC = $(LIB_SOURCES_ASMC:$(SRC_PATH)/$(ASMC_PATH)/%.$(SRC_EXT)=$(LIB_PATH)/$(ASMC_PATH)/%.a)
+LIBS_ASMC = $(LIB_SOURCES_ASMC:$(SRC_PATH)/$(ASMC_PATH)/%.$(SRC_EXT)=$(LIB_PATH)/lib%.a)
 
 all: dirs $(COMP_NAME) $(ASMC_NAME)
 	
@@ -32,22 +38,22 @@ run: all
 	./$(COMP_NAME)
 
 $(COMP_NAME): $(BUILD_PATH)/$(COMP_PATH)/main.o $(LIBS_COMP)
-	gcc $(COMPILE_FLAGS) $^ -o $(COMP_NAME) $(OPT_LIB)
+	gcc $(COMPILE_FLAGS) $< -o $(COMP_NAME) $(OPT_LIB_PATH) $(OPT_LIB)
 	
 $(ASMC_NAME): $(BUILD_PATH)/$(ASMC_PATH)/main.o $(LIBS_ASMC)
-	gcc $(COMPILE_FLAGS) $^ -o $(ASMC_NAME) $(OPT_LIB)
+	gcc $(COMPILE_FLAGS) $< -o $(ASMC_NAME) $(OPT_INCLUDE_PATH) $(OPT_LIB_PATH) $(OPT_LIB_ASMC)
 
-$(LIB_PATH)/$(COMP_PATH)/%.a : $(BUILD_PATH)/$(COMP_PATH)/%.o
+$(LIB_PATH)/lib%.a : $(BUILD_PATH)/$(COMP_PATH)/%.o
 	ar rcs $@ $^
 	
-$(LIB_PATH)/$(ASMC_PATH)/%.a : $(BUILD_PATH)/$(ASMC_PATH)/%.o
+$(LIB_PATH)/lib%.a : $(BUILD_PATH)/$(ASMC_PATH)/%.o
 	ar rcs $@ $^
 
 $(BUILD_PATH)/$(COMP_PATH)/%.o: $(SRC_PATH)/$(COMP_PATH)/%.$(SRC_EXT)
-	gcc $(COMPILE_FLAGS) -c -o $@ $<
+	gcc $(COMPILE_FLAGS) -c -o $@ $< $(OPT_INCLUDE_PATH)
 	
 $(BUILD_PATH)/$(ASMC_PATH)/%.o: $(SRC_PATH)/$(ASMC_PATH)/%.$(SRC_EXT)
-	gcc $(COMPILE_FLAGS) -c -o $@ $<
+	gcc $(COMPILE_FLAGS) -c -o $@ $< $(OPT_INCLUDE_PATH)
 
 .PHONY: dirs
 dirs:

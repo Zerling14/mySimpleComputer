@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "memory.h"
+#include "command.h"
 
 int sc_memoryInit()
 {
@@ -103,10 +104,6 @@ int sc_regGet(int num_register, int *value)
 
 	return 0;
 }
-
-int processor_commands[] = {10, 11, 20, 21, 22, 30, 31, 32, 33, 40, 41, 42, 43};
-int user_commands_start = 51;
-int user_commands_end = 76;
 
 int sc_commandEncode(int command, int operand, int *value)
 {
