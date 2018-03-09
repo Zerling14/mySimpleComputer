@@ -3,6 +3,7 @@
 #include "interface.h"
 #include "memory.h"
 #include "cpu.h"
+#include "command.h"
 
 #define PRINT_COMMANDS_INTO_LOG
 
@@ -145,14 +146,29 @@ int CU()
 			acc_reg = operand;
 			break;
 		case COMMAND_JUMP:
+			#ifdef PRINT_COMMANDS_INTO_LOG
+				sprintf(buff, "JUMP: %d[%X]\n", operand, insp_reg);
+				strcat(log_buff, buff);
+				printf("%s", buff);
+			#endif
 			insp_reg = operand;
 			break;
 		case COMMAND_JNEG:
+			#ifdef PRINT_COMMANDS_INTO_LOG
+				sprintf(buff, "JNEG: %d[%X]\n", operand, insp_reg);
+				strcat(log_buff, buff);
+				printf("%s", buff);
+			#endif
 			if (acc_reg < 0) {
 				insp_reg = operand;
 			}
 			break;
 		case COMMAND_JZ:
+			#ifdef PRINT_COMMANDS_INTO_LOG
+				sprintf(buff, "JZ: %d[%X]\n", operand, insp_reg);
+				strcat(log_buff, buff);
+				printf("%s", buff);
+			#endif
 			if (acc_reg == 0) {
 				insp_reg = operand;
 			}
@@ -164,6 +180,13 @@ int CU()
 				printf("%s", buff);
 			#endif
 			sc_regSet(IF, 1);
+			break;
+		case COMMAND_NOP: //HALT
+			#ifdef PRINT_COMMANDS_INTO_LOG
+				sprintf(buff, "NOP: %d\n", operand);
+				strcat(log_buff, buff);
+				printf("%s", buff);
+			#endif
 			break;
 		default:
 			sc_regSet(IF, 1);

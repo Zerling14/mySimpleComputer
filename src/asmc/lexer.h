@@ -1,6 +1,6 @@
 #ifndef LEXER_H
 #define LEXER_H
 
-int lexer(int indesc, int outdesc);
+int lexer(char *infile, char *outfile);
 
 #endif

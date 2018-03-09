@@ -42,27 +42,10 @@ int main(int argc, char **argv)
 		infile[19] = 0;
 	}
 	
-	int indesc = open(infile, O_RDONLY);
-	int outdesc = open(outfile, O_WRONLY | O_TRUNC | O_CREAT, -1);
-
-	if (indesc == -1) {
-		print_error("error", "cant open infile");
-	}
-	if (outdesc == -1) {
-		print_error("error", "cant open outfile");
-	}
-	
-	if (lexer(indesc, outdesc)) {
+	if (lexer(infile, outfile)) {
 		return -1;
 	}
 	
-	if (close(indesc) == -1) {
-		print_error("error", "cant close infile");
-	}
-	if (close(outdesc) == -1) {
-		print_error("error", "cant close outfile");
-	}
-	
-	printf("%s, %s\n", infile, outfile);
+	//printf("%s, %s\n", infile, outfile);
 	return 0;
 }

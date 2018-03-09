@@ -7,7 +7,6 @@
 //	LOAD/STORE
 #define COMMAND_LOAD	20
 #define COMMAND_STORE	21
-#define COMMAND_SET		22
 //	ARITHMETIC
 #define COMMAND_ADD		30
 #define COMMAND_SUB		31
@@ -23,6 +22,9 @@
 #define COMMAND_AND		52
 #define COMMAND_OR		53
 #define COMMAND_XOR		54
+// MY USER FUNCTIONS
+#define COMMAND_SET		77
+#define COMMAND_NOP		78
 
 extern int processor_commands[13];
 extern int user_commands_start;

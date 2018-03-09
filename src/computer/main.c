@@ -15,6 +15,7 @@
 #include "bigchars.h"
 #include "myreadkey.h"
 #include "cpu.h"
+#include "command.h"
 
 int kbhit(void)
 {
