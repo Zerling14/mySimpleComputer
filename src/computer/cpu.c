@@ -28,6 +28,11 @@ int ALU(int command, int operand)
 			return 1;
 		}
 		acc_reg += value;
+		if (acc_reg >= 0) {
+			acc_reg &= 0xFFFF;
+		} else {
+			acc_reg =  0 - ((0 - acc_reg) & 0xFFFF);
+		}
 		break;
 	case COMMAND_SUB:
 		#ifdef PRINT_COMMANDS_INTO_LOG
