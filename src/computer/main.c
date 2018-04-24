@@ -277,14 +277,14 @@ void print_interface()
 	signal(SIGWINCH, sigwinch_proccess);
 	struct itimerval nval;
 
-	printf("\033[8;80;81t");
+	printf("\033[8;80;81t"); // try set console size
 
 	nval.it_interval.tv_sec = 0;
 	nval.it_interval.tv_usec = 0;
 	nval.it_value.tv_sec = 1;
 	nval.it_value.tv_usec = 0;
 
-	setitimer(ITIMER_REAL, &nval, 0);
+	setitimer(ITIMER_REAL, &nval, 0); // init timer for incrementing instruction counter
 
 	// set in memory multiplication table
 	if (0) {
@@ -293,7 +293,7 @@ void print_interface()
 				sc_memorySet(i * 10 + j, i * j * pow(-1, i + j));
 			}
 		}
-	} else {
+	} else { // write in memory programm for calculating fibonachi num
 		int value;
 		sc_commandEncode(COMMAND_SET, 0, &value);
 		sc_memorySet(0, value);
@@ -416,9 +416,9 @@ void print_interface()
 					return;
 				}
 				if (tmp_val >= 0) {
-					tmp_val = (((key >= '0' && key <= '9') ? (key - '0') : (key - 'a' + 10)) | (tmp_val << 4)) & 0xFFFF;
+					tmp_val = (((key >= '0' && key <= '9') ? (key - '0') : (key - 'a' + 10)) | (tmp_val << 4));
 				} else {
-					tmp_val = 0 - ((((key >= '0' && key <= '9') ? (key - '0') : (key - 'a' + 10)) | ((0 - tmp_val) << 4)) & 0xFFFF);
+					tmp_val = 0 - ((((key >= '0' && key <= '9') ? (key - '0') : (key - 'a' + 10)) | ((0 - tmp_val) << 4)));
 				}
 				if (sc_memorySet(selected_y * 10 + selected_x, tmp_val)) {
 					printf("error memory address: %d cant writed", selected_y * 10 + selected_x);
@@ -443,8 +443,11 @@ void print_interface()
 					printf("error memory address: %d cant read", selected_y * 10 + selected_x);
 					return;
 				}
-				if ((tmp_val > 0 && key == KEY_minus) || (tmp_val < 0 && key == KEY_plus)) {
-					tmp_val = 0 - tmp_val;
+				if (key == KEY_plus) {
+					tmp_val = tmp_val & (~0x4000);
+				}
+				if (key == KEY_minus) {
+					tmp_val = tmp_val | 0x4000;
 				}
 				if (sc_memorySet(selected_y * 10 + selected_x, tmp_val)) {
 					printf("error memory address: %d cant writed", selected_y * 10 + selected_x);

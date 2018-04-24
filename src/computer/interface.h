@@ -1,7 +1,7 @@
 #ifndef INTERFACE_H
 #define INTERFACE_H
 
-extern char log_buff[255];
+extern char log_buff[1024];
 
 int mi_printinterface(int select_x, int select_y);
 int mi_printmemory(int x, int y, int select_x, int select_y);

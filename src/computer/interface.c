@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 #include "myterm.h"
 #include "interface.h"
 #include "memory.h"
@@ -22,16 +23,84 @@
 #define BIGNUM_H (KEYS_H)
 #define BIGNUM_W (KEYS_X - 1)
 
-char log_buff[255] = {};
+char log_buff[1024] = {};
+int max_log_lines = 6;
+
+int line_count(char *str)
+{
+	int lines_num = 0;
+	for (int i = 0; i < strlen(str); ++i)
+	{
+		if (str[i] == '\n')
+		{
+			++lines_num;
+		}
+	}
+	return lines_num;
+}
+
+void move_log(char *str)
+{
+	int next_line_pos = 0;
+	for (int i = 0; i < strlen(str); ++i)
+	{
+		if (str[i] == '\n')
+		{
+			next_line_pos = i;
+			break;
+		}
+	}
+	int old_str_size = strlen(str);
+	for (int i = next_line_pos + 1; i < strlen(str); ++i)
+	{
+		str[i - (next_line_pos + 1)] = str[i];
+	}
+	str[old_str_size - next_line_pos - 1] = 0;
+}
+
+void clear_log_place(int x, int y, char *str)
+{
+	int line_num = line_count(str);
+	if (line_num == 0)
+	{
+		return;
+	}
+	int max_line_lenght = 0;
+	int last_line_end = 0;
+	for (int i = 0; i < strlen(str); ++i)
+	{
+		if ((str[i] == '\n') || (i == (strlen(str) - 1)))
+		{
+			if (i - last_line_end > max_line_lenght)
+			{
+				max_line_lenght = i - last_line_end;
+			}
+			last_line_end = i + 1;
+		}
+	}
+	
+	
+	char *buf = calloc(max_line_lenght, sizeof(char));
+	memset(buf, ' ', max_line_lenght);
+	for (int i = 0; i < line_num; ++i)
+	{
+		mt_gotoXY(x, y + i);
+		printf("%s", buf);
+	}
+}
 
 int mi_printlog(int x, int y)
 {
+	
+
+	if (line_count(log_buff) > max_log_lines) {
+		clear_log_place(x, y, log_buff);
+		move_log(log_buff);
+		//log_buff[0] = 0;
+		//mt_clrsrc();
+	}
 	mt_gotoXY(x, y);
 	printf("Logs[%lu]:\n%s", strlen(log_buff), log_buff);
-	if (strlen(log_buff) >= 120) {
-		log_buff[0] = 0;
-		mt_clrsrc();
-	}
 	return 0;
 }
 
@@ -92,12 +161,12 @@ int mi_printselectedmemory(int x, int y, int address)
 	if (sc_memoryGet(address, &value)) {
 		return 1;
 	}
-	if (value >= 0) {
+	if ((value & 0x4000) == 0) {
 		bc_printbigchar(big_char_plus, x + 1, y, none, 3);
-		bc_bigprintint(x + 10, y, none, 3, value);
+		bc_bigprintint(x + 10, y, none, 3, value & 0x3FFF);
 	} else {
 		bc_printbigchar(big_char_minus, x + 1, y, none, 3);
-		bc_bigprintint(x + 10, y, none, 3, 0 - value);
+		bc_bigprintint(x + 10, y, none, 3, value & 0x3FFF);
 	}
 	return 0;
 }
@@ -120,10 +189,10 @@ int mi_printmemory(int x, int y, int select_x, int select_y)
 			} else {
 				mt_resetcolor();
 			}
-			if (val >= 0) {
-				printf("+%04X", val);
+			if ((val & 0x4000) == 0) {
+				printf("+%04X", val & 0x3FFF);
 			} else {
-				printf("-%04X", 0 - val);
+				printf("-%04X", val & 0x3FFF);
 			}
 			if (j < 9) {
 				printf(" ");
@@ -177,10 +246,10 @@ int mi_printaccumulator(int x, int y, int val)
 	mt_gotoXY(x + 2, y);
 	puts("accumulator");
 	mt_gotoXY(x + 5, y + 1);
-	if (val >= 0) {
-		printf("+%04X", val);
+	if ((val & 0x4000) == 0) {
+		printf("+%04X", val & 0x3FFF);
 	} else {
-		printf("-%04X", 0 - val);
+		printf("-%04X", val & 0x3FFF);
 	}
 	return 0;
 }

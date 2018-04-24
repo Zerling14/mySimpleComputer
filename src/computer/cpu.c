@@ -44,17 +44,88 @@ int ALU(int command, int operand)
 		acc_reg -= value;
 		break;
 	case COMMAND_DIVIDE:
+		#ifdef PRINT_COMMANDS_INTO_LOG
+			if (sc_memoryGet(operand, &value2)) {
+				return 1;
+			}
+			sprintf(buff, "DIV: %d[%X]\n", operand, value2);
+			strcat(log_buff, buff);
+			printf("%s", buff);
+		#endif
+		if (sc_memoryGet(operand, &value)) {
+			return 1;
+		}
+		acc_reg /= value;
 		break;
 	case COMMAND_MUL:
+		#ifdef PRINT_COMMANDS_INTO_LOG
+			if (sc_memoryGet(operand, &value2)) {
+				return 1;
+			}
+			sprintf(buff, "MUL: %d[%X]\n", operand, value2);
+			strcat(log_buff, buff);
+			printf("%s", buff);
+		#endif
+		if (sc_memoryGet(operand, &value)) {
+			return 1;
+		}
+		acc_reg *= value;
 		break;
 	//	USERS COMMANDS
 	case COMMAND_NOT:
+		#ifdef PRINT_COMMANDS_INTO_LOG
+			if (sc_memoryGet(operand, &value2)) {
+				return 1;
+			}
+			sprintf(buff, "NOT: %d[%X]\n", operand, value2);
+			strcat(log_buff, buff);
+			printf("%s", buff);
+		#endif
+		if (sc_memorySet(operand, ~acc_reg)) {
+			return 1;
+		}
 		break;
 	case COMMAND_AND:
+		#ifdef PRINT_COMMANDS_INTO_LOG
+			if (sc_memoryGet(operand, &value2)) {
+				return 1;
+			}
+			sprintf(buff, "AND: %d[%X]\n", operand, value2);
+			strcat(log_buff, buff);
+			printf("%s", buff);
+		#endif
+		if (sc_memoryGet(operand, &value)) {
+			return 1;
+		}
+		acc_reg &= value;
 		break;
 	case COMMAND_OR:
+		#ifdef PRINT_COMMANDS_INTO_LOG
+			if (sc_memoryGet(operand, &value2)) {
+				return 1;
+			}
+			sprintf(buff, "OR: %d[%X]\n", operand, value2);
+			strcat(log_buff, buff);
+			printf("%s", buff);
+		#endif
+		if (sc_memoryGet(operand, &value)) {
+			return 1;
+		}
+		acc_reg |= value;
 		break;
 	case COMMAND_XOR:
+		#ifdef PRINT_COMMANDS_INTO_LOG
+			if (sc_memoryGet(operand, &value2)) {
+				return 1;
+			}
+			sprintf(buff, "XOR: %d[%X]\n", operand, value2);
+			strcat(log_buff, buff);
+			printf("%s", buff);
+		#endif
+		if (sc_memoryGet(operand, &value)) {
+			return 1;
+		}
+		acc_reg ^= value;
 		break;
 	}
 	return 0;

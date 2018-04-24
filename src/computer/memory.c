@@ -18,7 +18,7 @@ int sc_memorySet(int address, int value)
 		sc_regSet (MF, 1);
 		return 1;
 	}
-	memory[address] = value;
+	memory[address] = value & 0x7FFF;
 
 	return 0;
 }
@@ -29,7 +29,7 @@ int sc_memoryGet(int address, int *value)
 		return 1;
 	}
 
-	*value = memory[address];
+	*value = memory[address] & 0x7FFF;
 
 	return 0;
 }
