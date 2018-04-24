@@ -1,2 +1,9 @@
 main
 *.bin
+.vs/
+basic
+build/
+lib/
+mySimpleComputer
+sat
+termsettings
