@@ -1,24 +1,18 @@
-0	SET 0
-1	STORE 97	;a
-2	SET 1
-3	STORE 98	;b
-4	SET 0
-5	STORE 99	;i
-6	READ 96		;num
-7	LOAD 96
-8	SUB 99		;num - i
-9	JZ 21		;num - i == 0
-10	LOAD 97
-11	STORE 95	;tmp = a
-12	LOAD 98
-13	STORE 97	;a = b
-14	LOAD 95
-15	ADD 98
-16	STORE 98	;b = tmp + b
-17	SET 1
-18	ADD 99
-19	STORE 99
-20	JUMP 7
-21	WRITE 97
-22	NOP
-23	HALT
+0	READ 96		;num
+1	LOAD 96
+2	SUB 99		;num - i
+3	JZ 15		;num - i == 0
+4	LOAD 97
+5	STORE 95	;tmp = a
+6	LOAD 98
+7	STORE 97	;a = b
+8	LOAD 95
+9	ADD 98
+10	STORE 98	;b = tmp + b
+11	SET 1
+12	ADD 99
+13	STORE 99
+14	JUMP 1
+15	WRITE 97
+16	HALT
+98	= 1

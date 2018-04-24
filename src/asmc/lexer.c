@@ -50,6 +50,8 @@ int cstrtocint(char *cstr, int *cint)
 		*cint = COMMAND_XOR;
 	} else if (!strcmp(cstr, "NOP")) {
 		*cint = COMMAND_NOP;
+	} else if (!strcmp(cstr, "=")) {
+		*cint = 0;
 	} else {
 		return -1;
 	}
@@ -153,7 +155,7 @@ int lexer(char *infile, char *outfile)
 				}
 			} else if (num_token == 2) {
 				int number;
-				if (!tonumber(code_token, &number) || number < 0 || number > 127) {
+				if (!tonumber(code_token, &number) || ((number < 0 || number > 127) && command != 0) || ((number < -0xFFFF || number > 0xFFFF) && command == 0)) {
 					char buff[200];
 					sprintf(buff, "invalid operand \"%s\" not exist\n%s\n\E[32m\E[1m%*c\E[0m", code_token, code_line_buff, num_spaces + 1, '^');
 					print_error("error", buff);
@@ -176,15 +178,16 @@ int lexer(char *infile, char *outfile)
 		}
 		//printf("%d %d %d\n", num_memory_cell, command, operand);
 		
-		int coded_command;
-		sc_commandEncode(command, operand, &coded_command);
-		
-		memory_buff[num_memory_cell] = coded_command;
-		
+		if (command != 0) {
+			int coded_command;
+			sc_commandEncode(command, operand, &coded_command);
+			memory_buff[num_memory_cell] = coded_command;
+		} else {
+			memory_buff[num_memory_cell] = operand;
+		}
+
 		//printf("%X\n", coded_command);
-		
-		
-		
+
 		code_line = strtok_r(0, "\n", &saveptr1);
 		num_line++;
 		//printf("\n");
