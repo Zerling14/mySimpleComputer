@@ -116,6 +116,12 @@ int lexer(char *infile, char *outfile)
 		print_error("error", "cant close infile");
 	}
 	
+	for (int i = 0; i < strlen(code_buff); ++i) {
+		if (code_buff[i] == '\r') {
+			code_buff[i] = ' ';
+		}
+	}
+
 	int memory_buff[100] = {};
 	char code_line_buff[100];
 	int num_line = 0;
