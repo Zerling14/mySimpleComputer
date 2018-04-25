@@ -1,7 +1,6 @@
 main
 *.bin
 .vs/
-basic
 build/
 lib/
 mySimpleComputer

@@ -4,8 +4,8 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
-#include "lexer.h"
-#include "printinfo.h"
+#include "basiclexer.h"
+#include "basicprintinfo.h"
 
 int main(int argc, char **argv)
 {

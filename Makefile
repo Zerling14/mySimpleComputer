@@ -18,7 +18,7 @@ OPT_LIB = -lm -lmemory -lcommand -lcpu -ldebug -linterface -lmyreadkey -lmyterm 
 
 OPT_LIB_ASMC = -lm -llexer -lprintinfo -lmemory -lcommand
 
-OPT_LIB_BASIC = -lm -llexer -lprintinfo -lmemory -lcommand
+OPT_LIB_BASIC = -lm -lbasiclexer -lbasicprintinfo -lmemory -lcommand
 
 SRC_EXT = c
 
