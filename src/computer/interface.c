@@ -100,7 +100,7 @@ int mi_printlog(int x, int y)
 		//mt_clrsrc();
 	}
 	mt_gotoXY(x, y);
-	printf("Logs[%lu]:\n%s", strlen(log_buff), log_buff);
+	printf("Logs[%lu]:\n%s", (long unsigned int)strlen(log_buff), log_buff);
 	return 0;
 }
 

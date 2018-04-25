@@ -62,14 +62,15 @@ int translate_basic(LineStruct *line_struct)
 				error_flag = 1;
 			}
 			line_struct->basic_command = code_token;
+			break;
 		} else if (num_token >= 2) {
-			int number;
 			if (validate_operand(code_token) == -1) {
 				char buff[200];
 				sprintf(buff, "invalid operand \"%s\" not exist\n%s\n\E[32m\E[1m%*c\E[0m", code_token, code_line_buff, num_spaces + 1, '^');
 				print_error("error", buff);
 				error_flag = 1;
 			}
+			//strcat(code_token, saveptr);
 			line_struct->basic_operand = code_token;
 			break;
 		} else {
@@ -79,11 +80,29 @@ int translate_basic(LineStruct *line_struct)
 		code_token = strtok_r(0, " \t\n", &saveptr);
 		num_token++;
 	}
+	line_struct->basic_operand = saveptr;
+	
 	if (error_flag) {
 		return -1;
 	}
+	printf("1)%d 2)%s 3)%s\n", line_struct->basic_line_num, line_struct->basic_command, line_struct->basic_operand);
 	
-	
+	//analysis basic command
+	char *cstr = line_struct->basic_operand;
+	if (!strcmp(cstr, "REM")) {
+		line_struct->translated_str = calloc(1, sizeof(char));
+	} else if (!strcmp(cstr, "INPUT")) {
+		char *translated_str_buff[1000];
+		get_var_address()
+		//calculate_expression(translated_str_buff, cstr);
+	} else if (!strcmp(cstr, "OUTPUT")) {
+		char *translated_str_buff[1000];
+		calculate_expression(translated_str_buff, cstr);
+	} else if (!strcmp(cstr, "GOTO")) {
+	} else if (!strcmp(cstr, "IF")) {
+	} else if (!strcmp(cstr, "LET")) {
+	} else if (!strcmp(cstr, "END")) {
+	}
 	
 	return 0;
 }
@@ -103,50 +122,6 @@ int validate_command(char *cstr)
 	} else if (!strcmp(cstr, "IF")) {
 	} else if (!strcmp(cstr, "LET")) {
 	} else if (!strcmp(cstr, "END")) {
-	} else {
-		return -1;
-	}
-	return 0;
-}
-
-int cstrtocint(char *cstr, int *cint)
-{
-	if (!strcmp(cstr, "READ")) {
-		*cint = COMMAND_READ;
-	} else if (!strcmp(cstr, "WRITE")) {
-		*cint = COMMAND_WRITE;
-	} else if (!strcmp(cstr, "LOAD")) {
-		*cint = COMMAND_LOAD;
-	} else if (!strcmp(cstr, "STORE")) {
-		*cint = COMMAND_STORE;
-	} else if (!strcmp(cstr, "SET")) {
-		*cint = COMMAND_SET;
-	} else if (!strcmp(cstr, "ADD")) {
-		*cint = COMMAND_ADD;
-	} else if (!strcmp(cstr, "SUB")) {
-		*cint = COMMAND_SUB;
-	} else if (!strcmp(cstr, "DIVIDE")) {
-		*cint = COMMAND_DIVIDE;
-	} else if (!strcmp(cstr, "MUL")) {
-		*cint = COMMAND_MUL;
-	} else if (!strcmp(cstr, "JUMP")) {
-		*cint = COMMAND_JUMP;
-	} else if (!strcmp(cstr, "JNEG")) {
-		*cint = COMMAND_JNEG;
-	} else if (!strcmp(cstr, "JZ")) {
-		*cint = COMMAND_JZ;
-	} else if (!strcmp(cstr, "HALT")) {
-		*cint = COMMAND_HALT;
-	} else if (!strcmp(cstr, "NOT")) {
-		*cint = COMMAND_NOT;
-	} else if (!strcmp(cstr, "AND")) {
-		*cint = COMMAND_AND;
-	} else if (!strcmp(cstr, "OR")) {
-		*cint = COMMAND_OR;
-	} else if (!strcmp(cstr, "XOR")) {
-		*cint = COMMAND_XOR;
-	} else if (!strcmp(cstr, "NOP")) {
-		*cint = COMMAND_NOP;
 	} else {
 		return -1;
 	}
@@ -263,7 +238,7 @@ int lexer(char *infile, char *outfile)
 	}
 	
 	for (int i = 0; i < line_struct_arr_size_now; ++i) {
-		printf("%s\n", line_struct_arr[i].basic_str);
+		//printf("%s\n", line_struct_arr[i].basic_str);
 		free(line_struct_arr[i].basic_str);
 	}
 
