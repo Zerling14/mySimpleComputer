@@ -15,6 +15,7 @@
 /* typedef struct {
 	int   basic_line_num;
 	char *basic_str;
+	char *basic_str_full;
 	char *basic_command;
 	char *basic_operand;
 	int   translated_line_num;
@@ -32,6 +33,8 @@ int translate_basic(LineStruct *line_struct)
 	char code_line_buff[100];
 	strncpy(code_line_buff, line_struct->basic_str, 99);
 	code_line_buff[99] = 0;
+	line_struct->basic_str_full = calloc(100, sizeof(char));
+	strncpy(line_struct->basic_str_full, line_struct->basic_str, 99);
 	
 	int error_flag = 0;
 	
@@ -80,6 +83,10 @@ int translate_basic(LineStruct *line_struct)
 		code_token = strtok_r(0, " \t\n", &saveptr);
 		num_token++;
 	}
+	if (num_token == 0) {
+		return -1;
+	}
+	
 	line_struct->basic_operand = saveptr;
 	
 	if (error_flag) {
@@ -88,23 +95,82 @@ int translate_basic(LineStruct *line_struct)
 	printf("1)%d 2)%s 3)%s\n", line_struct->basic_line_num, line_struct->basic_command, line_struct->basic_operand);
 	
 	//analysis basic command
-	char *cstr = line_struct->basic_operand;
+	error_flag = 0;
+	
+	char *cstr = line_struct->basic_command;
+	char *cstr_operand = line_struct->basic_operand;
 	if (!strcmp(cstr, "REM")) {
 		line_struct->translated_str = calloc(1, sizeof(char));
 	} else if (!strcmp(cstr, "INPUT")) {
-		char *translated_str_buff[1000];
-		get_var_address()
+		//char *translated_str_buff[1000];
+		int memory_address = get_var_address(cstr_operand);
+		if (memory_address < 0) {
+			char buff[200];
+			int num_spaces = calcspaces(code_line_buff, cstr_operand - line_struct->basic_str);
+			sprintf(buff, "var name \"%s\" unacceptable\n%s\n\E[32m\E[1m%*c\E[0m", cstr_operand, line_struct->basic_str_full, num_spaces + 1, '^');
+			print_error("error", buff);
+			error_flag = 1;
+		}
+		printf("address:%d\n", memory_address);
 		//calculate_expression(translated_str_buff, cstr);
 	} else if (!strcmp(cstr, "OUTPUT")) {
-		char *translated_str_buff[1000];
-		calculate_expression(translated_str_buff, cstr);
+		//char *translated_str_buff[1000];
+		//calculate_expression(translated_str_buff, cstr);
 	} else if (!strcmp(cstr, "GOTO")) {
 	} else if (!strcmp(cstr, "IF")) {
 	} else if (!strcmp(cstr, "LET")) {
 	} else if (!strcmp(cstr, "END")) {
 	}
-	
+	if (error_flag) {
+		return -1;
+	}
 	return 0;
+}
+
+typedef struct {
+	int init;
+	int asm_address;
+	char name;
+} VarStruct;
+
+VarStruct *var_struct_arr = 0;
+int var_struct_arr_size = 26;
+int free_asm_address = 99;
+int init_var_struct_arr()
+{
+	var_struct_arr = calloc(var_struct_arr_size, sizeof(VarStruct));
+	if (!var_struct_arr) {
+		return -1;
+	}
+	return 0;
+}
+
+int get_var_address(char *cstr)
+{
+	if (!cstr) {
+		return -1;
+	}
+	if (strlen(cstr) == 1 || strlen(cstr) > 2) {
+		return -1;
+	}
+	if (!(*cstr >= 'A' && *cstr <= 'Z')) {
+		return -1;
+	}
+	for (int i = 0; i < var_struct_arr_size; ++i) {
+		if (var_struct_arr[i].init && var_struct_arr[i].name == *cstr) {
+			return var_struct_arr[i].asm_address;
+		}
+	}
+	for (int i = 0; i < var_struct_arr_size; ++i) {
+		if (var_struct_arr[i].init == 0) {
+			var_struct_arr[i].init = 1;
+			var_struct_arr[i].name = *cstr;
+			var_struct_arr[i].asm_address = free_asm_address;
+			--free_asm_address;
+			return var_struct_arr[i].asm_address;
+		}
+	}
+	return -1;
 }
 
 int validate_operand(char *cstr)
@@ -158,6 +224,11 @@ int tonumber(char *s, int *number)
 
 int lexer(char *infile, char *outfile)
 {
+	// init var array
+	if (init_var_struct_arr()) {
+		print_error("internal error", "cant init var array, maybe out of memory");
+	}
+	
 	int indesc = open(infile, O_RDONLY);
 	
 	if (indesc == -1) {
