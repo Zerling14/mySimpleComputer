@@ -27,12 +27,7 @@ int ALU(int command, int operand)
 		if (sc_memoryGet(operand, &value)) {
 			return 1;
 		}
-		acc_reg += value;
-		if (acc_reg >= 0) {
-			acc_reg &= 0xFFFF;
-		} else {
-			acc_reg =  0 - ((0 - acc_reg) & 0xFFFF);
-		}
+		acc_reg = ((acc_reg & 0x7FFF) + (value & 0x7FFF)) & 0x7FFF;
 		break;
 	case COMMAND_SUB:
 		#ifdef PRINT_COMMANDS_INTO_LOG
@@ -46,7 +41,8 @@ int ALU(int command, int operand)
 		if (sc_memoryGet(operand, &value)) {
 			return 1;
 		}
-		acc_reg -= value;
+		//acc_reg -= value;
+		acc_reg = ((acc_reg & 0x7FFF) - (value & 0x7FFF)) & 0x7FFF;
 		break;
 	case COMMAND_DIVIDE:
 		#ifdef PRINT_COMMANDS_INTO_LOG
@@ -60,7 +56,7 @@ int ALU(int command, int operand)
 		if (sc_memoryGet(operand, &value)) {
 			return 1;
 		}
-		acc_reg /= value;
+		acc_reg = acc_reg / value; //TODO
 		break;
 	case COMMAND_MUL:
 		#ifdef PRINT_COMMANDS_INTO_LOG
@@ -74,7 +70,26 @@ int ALU(int command, int operand)
 		if (sc_memoryGet(operand, &value)) {
 			return 1;
 		}
-		acc_reg *= value;
+		if (!(acc_reg & 0x7FFF) || !(value & 0x7FFF)) {
+			acc_reg = 0;
+		} else {
+			//acc_reg *= value;
+			if (acc_reg & 0x4000) {
+				if (value & 0x4000) {
+					acc_reg = (((0 - acc_reg) & 0x3FFF) * ((0 - value) & 0x3FFF)) & 0x3FFF;
+				} else {
+					acc_reg = (((0 - acc_reg) & 0x3FFF) * (value & 0x3FFF)) & 0x3FFF;
+					acc_reg ^= 0x4000;
+				}	
+			} else {
+				if (value & 0x4000) {
+					acc_reg = ((acc_reg & 0x3FFF) * ((0 - value) & 0x3FFF)) & 0x3FFF;
+					acc_reg ^= 0x4000;
+				} else {
+					acc_reg = ((acc_reg & 0x3FFF) * (value & 0x3FFF)) & 0x3FFF;
+				}	
+			}
+		}
 		break;
 	//	USERS COMMANDS
 	case COMMAND_NOT:
@@ -205,7 +220,7 @@ int CU()
 				if (sc_memoryGet(operand, &value2)) {
 					return 1;
 				}
-				sprintf(buff, "LOAD: %d[%X]\n", operand, value2);
+				sprintf(buff, "STORE: %d[%X]\n", operand, value2);
 				strcat(log_buff, buff);
 				printf("%s", buff);
 			#endif
@@ -235,7 +250,7 @@ int CU()
 				strcat(log_buff, buff);
 				printf("%s", buff);
 			#endif
-			if (acc_reg < 0) {
+			if (acc_reg & 0x4000) {
 				insp_reg = operand;
 			}
 			break;

@@ -265,6 +265,7 @@ void sigwinch_proccess(int signo)
 	mi_printinterface(selected_x, selected_y);
 }
 
+char *need_load = 0;
 void print_interface()
 {
 	rk_mytermrestor();
@@ -389,6 +390,11 @@ void print_interface()
 	22	HALT
 		*/
 	}
+	
+	if (need_load) {
+		sc_memoryLoad(need_load);
+	}
+	
 	int exit_flag = 0;
 	int tmp_val;
 	enum keys key;
@@ -512,8 +518,11 @@ void print_interface()
 	rk_mytermrestor();
 }
 
-int main()
+int main(int argc, char* argv[])
 {
+	if (argc == 2) {
+		need_load = argv[1];
+	}
 	//print_test_lab1();
 	//print_test_lab2();
 	//print_test2_lab2();

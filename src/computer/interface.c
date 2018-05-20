@@ -82,7 +82,7 @@ void clear_log_place(int x, int y, char *str)
 	
 	char *buf = calloc(max_line_lenght, sizeof(char));
 	memset(buf, ' ', max_line_lenght);
-	for (int i = 0; i < line_num; ++i)
+	for (int i = 0; i <= line_num; ++i)
 	{
 		mt_gotoXY(x, y + i);
 		printf("%s", buf);
@@ -249,7 +249,7 @@ int mi_printaccumulator(int x, int y, int val)
 	if ((val & 0x4000) == 0) {
 		printf("+%04X", val & 0x3FFF);
 	} else {
-		printf("-%04X", val & 0x3FFF);
+		printf("-%04X", (0 - val) & 0x3FFF);
 	}
 	return 0;
 }

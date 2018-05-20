@@ -189,7 +189,11 @@ int lexer(char *infile, char *outfile)
 			sc_commandEncode(command, operand, &coded_command);
 			memory_buff[num_memory_cell] = coded_command;
 		} else {
-			memory_buff[num_memory_cell] = operand;
+			if (operand >= 0) {
+				memory_buff[num_memory_cell] = operand & 0x3FFF;
+			} else {
+				memory_buff[num_memory_cell] = ((0 - operand) & 0x3FFF) | 0x4000;
+			}
 		}
 
 		//printf("%X\n", coded_command);
