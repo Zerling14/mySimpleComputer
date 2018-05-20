@@ -278,7 +278,7 @@ void print_interface()
 	signal(SIGWINCH, sigwinch_proccess);
 	struct itimerval nval;
 
-	printf("\033[8;80;81t"); // try set console size
+	//printf("\033[8;80;81t"); // try set console size, actualy bad idea :(
 
 	nval.it_interval.tv_sec = 0;
 	nval.it_interval.tv_usec = 0;
