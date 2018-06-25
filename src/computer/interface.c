@@ -24,7 +24,7 @@
 #define BIGNUM_W (KEYS_X - 1)
 
 char log_buff[1024] = {};
-int max_log_lines = 6;
+int max_log_lines = 5;
 
 int line_count(char *str)
 {
@@ -93,14 +93,15 @@ int mi_printlog(int x, int y)
 {
 	
 
-	if (line_count(log_buff) > max_log_lines) {
+	while (line_count(log_buff) > max_log_lines) {
 		clear_log_place(x, y, log_buff);
 		move_log(log_buff);
 		//log_buff[0] = 0;
 		//mt_clrsrc();
 	}
 	mt_gotoXY(x, y);
-	printf("Logs[%lu]:\n%s", (long unsigned int)strlen(log_buff), log_buff);
+	//printf("Logs[%lu]:\n%s", (long unsigned int)strlen(log_buff), log_buff);
+	printf("%s", log_buff);
 	return 0;
 }
 
@@ -162,11 +163,11 @@ int mi_printselectedmemory(int x, int y, int address)
 		return 1;
 	}
 	if ((value & 0x4000) == 0) {
-		bc_printbigchar(big_char_plus, x + 1, y, none, 3);
-		bc_bigprintint(x + 10, y, none, 3, value & 0x3FFF);
+		bc_printbigchar(big_char_plus, x + 1, y, none, 5);
+		bc_bigprintint(x + 10, y, none, 5, value & 0x3FFF);
 	} else {
-		bc_printbigchar(big_char_minus, x + 1, y, none, 3);
-		bc_bigprintint(x + 10, y, none, 3, value & 0x3FFF);
+		bc_printbigchar(big_char_minus, x + 1, y, none, 5);
+		bc_bigprintint(x + 10, y, none, 5, value & 0x3FFF);
 	}
 	return 0;
 }

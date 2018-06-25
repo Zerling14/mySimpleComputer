@@ -50,6 +50,8 @@ int cstrtocint(char *cstr, int *cint)
 		*cint = COMMAND_XOR;
 	} else if (!strcmp(cstr, "NOP")) {
 		*cint = COMMAND_NOP;
+	} else if (!strcmp(cstr, "RCR")) {
+		*cint = COMMAND_RCR;
 	} else if (!strcmp(cstr, "=")) {
 		*cint = 0;
 	} else {

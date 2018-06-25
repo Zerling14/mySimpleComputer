@@ -8,8 +8,6 @@ cursor_invisible=\E[?25l\E[?1c
 set_a_background=\E[4%p1%dm
 set_a_foreground=\E[3%p1%dm
 
-
-
 Color       #define       Value       RGB
 black     COLOR_BLACK       0     0, 0, 0
 red       COLOR_RED         1     max,0,0

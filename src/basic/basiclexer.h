@@ -35,7 +35,6 @@ int lexer(char *infile, char *outfile);
 int tonumber(char *s, int *number);
 int calcspaces(char *code_token, int num);
 int translate_basic(LineStruct *line_struct);
-int cstrtocint(char *cstr, int *cint);
 int validate_operand(char *cstr);
 int validate_command(char *cstr);
 

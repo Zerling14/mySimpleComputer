@@ -23,8 +23,10 @@
 #define COMMAND_OR		53
 #define COMMAND_XOR		54
 // MY USER FUNCTIONS
+#define COMMAND_RCR		63
 #define COMMAND_SET		77
 #define COMMAND_NOP		78
+
 
 extern int processor_commands[13];
 extern int user_commands_start;

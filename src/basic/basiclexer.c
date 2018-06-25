@@ -782,50 +782,6 @@ int translate_basic(LineStruct *line_struct)
 	return 0;
 }
 
-int cstrtocint(char *cstr, int *cint)
-{
-	if (!strcmp(cstr, "READ")) {
-		*cint = COMMAND_READ;
-	} else if (!strcmp(cstr, "WRITE")) {
-		*cint = COMMAND_WRITE;
-	} else if (!strcmp(cstr, "LOAD")) {
-		*cint = COMMAND_LOAD;
-	} else if (!strcmp(cstr, "STORE")) {
-		*cint = COMMAND_STORE;
-	} else if (!strcmp(cstr, "SET")) {
-		*cint = COMMAND_SET;
-	} else if (!strcmp(cstr, "ADD")) {
-		*cint = COMMAND_ADD;
-	} else if (!strcmp(cstr, "SUB")) {
-		*cint = COMMAND_SUB;
-	} else if (!strcmp(cstr, "DIVIDE")) {
-		*cint = COMMAND_DIVIDE;
-	} else if (!strcmp(cstr, "MUL")) {
-		*cint = COMMAND_MUL;
-	} else if (!strcmp(cstr, "JUMP")) {
-		*cint = COMMAND_JUMP;
-	} else if (!strcmp(cstr, "JNEG")) {
-		*cint = COMMAND_JNEG;
-	} else if (!strcmp(cstr, "JZ")) {
-		*cint = COMMAND_JZ;
-	} else if (!strcmp(cstr, "HALT")) {
-		*cint = COMMAND_HALT;
-	} else if (!strcmp(cstr, "NOT")) {
-		*cint = COMMAND_NOT;
-	} else if (!strcmp(cstr, "AND")) {
-		*cint = COMMAND_AND;
-	} else if (!strcmp(cstr, "OR")) {
-		*cint = COMMAND_OR;
-	} else if (!strcmp(cstr, "XOR")) {
-		*cint = COMMAND_XOR;
-	} else if (!strcmp(cstr, "NOP")) {
-		*cint = COMMAND_NOP;
-	} else {
-		return -1;
-	}
-	return 0;
-}
-
 int tonumber(char *s, int *number)
 {
 	if (s == NULL || *s == '\0' || isspace(*s)) {

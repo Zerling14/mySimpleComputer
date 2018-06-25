@@ -5,13 +5,11 @@
 #include "cpu.h"
 #include "command.h"
 
-#define PRINT_COMMANDS_INTO_LOG
-
 int ALU(int command, int operand)
 {
 	int value;
-	char buff[20];
 	#ifdef PRINT_COMMANDS_INTO_LOG
+		char buff[20];
 		int value2;
 	#endif
 	switch (command) {
@@ -147,6 +145,20 @@ int ALU(int command, int operand)
 		}
 		acc_reg ^= value;
 		break;
+	case COMMAND_RCR:
+		#ifdef PRINT_COMMANDS_INTO_LOG
+			if (sc_memoryGet(operand, &value2)) {
+				return 1;
+			}
+			sprintf(buff, "RCR: %d[%X]\n", operand, value2);
+			strcat(log_buff, buff);
+			printf("%s", buff);
+		#endif
+		if (sc_memoryGet(operand, &value)) {
+			return 1;
+		}
+		acc_reg = ((value << 1) | ((value & 0x4000) && 1)) & 0x7FFF;
+		break;
 	}
 	return 0;
 }
@@ -180,7 +192,10 @@ int CU()
 				strcat(log_buff, buff);
 				printf("%s", buff);
 			#endif
+			printf("in: ");
 			scanf("%d", &value);
+			sprintf(buff, "in: %d\n", value);
+			strcat(log_buff, buff);
 			if (sc_memorySet(operand, value)) {
 				return 1;
 			}
@@ -197,7 +212,7 @@ int CU()
 			if (sc_memoryGet(operand, &value)) {
 				return 1;
 			}
-			sprintf(buff, "%X\n", value);
+			sprintf(buff, "out: %d\n", value);
 			strcat(log_buff, buff);
 			printf("%s", buff);
 			break;
